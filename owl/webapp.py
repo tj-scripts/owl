@@ -242,6 +242,7 @@ def get_latest_logs(max_lines=100, queue_source=None):
 
 # Dictionary containing module descriptions
 MODULE_DESCRIPTIONS = {
+    "run_multi_platform_model.py": "Use different models and APIs to handle tasks, suitable for managing token anxieties.",
     "run": "Default mode: Using OpenAI model's default agent collaboration mode, suitable for most tasks.",
     "run_mini": "Using OpenAI model with minimal configuration to process tasks",
     "run_deepseek_zh": "Using deepseek model to process Chinese tasks",
