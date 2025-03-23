@@ -242,7 +242,7 @@ def get_latest_logs(max_lines=100, queue_source=None):
 
 # Dictionary containing module descriptions
 MODULE_DESCRIPTIONS = {
-    "run_multi_platform_model.py": "使用不同的模型和API处理任务，适合缓解tokens焦虑。",
+    "run_multi_platform_model": "使用不同的模型和API处理任务，适合缓解tokens焦虑。",
     "run": "默认模式：使用OpenAI模型的默认的智能体协作模式，适合大多数任务。",
     "run_mini": "使用使用OpenAI模型最小化配置处理任务",
     "run_deepseek_zh": "使用deepseek模型处理中文任务",
