@@ -16,7 +16,6 @@ import sys
 
 from dotenv import load_dotenv
 from camel.models import ModelFactory
-from camel.models.base_model import BaseModelBackend
 from camel.toolkits import (
     CodeExecutionToolkit,
     ExcelToolkit,
@@ -39,79 +38,13 @@ load_dotenv(dotenv_path=str(env_path))
 
 set_log_level(level="DEBUG")
 
-# Create models for different roles
-def create_role_playing_model(
-    role_name: str = "USER",
-    default_role_name: str = "LLM",
-    ) -> BaseModelBackend:
-    r"""Creates an instance of `BaseModelBackend` of the specified role.
-    Args:
-        role_name (str): The role of the model.
-        default_role_name (str): The default role of the model.
-    Returns:
-            BaseModelBackend: The initialized backend.
-    Raises:
-        ValueError: If the role name is invalid.
-        ValueError: If the default role name is invalid.
-        ValueError: If the temperature is invalid.
-        ValueError: If the max_tokens is invalid.
-        ValueError: If there is no backend for the model.
-    """
-
-    # No need to set environment variables. Modify the corresponding default values to yours.
-    default_llm_model_type="qwen-max"
-    default_vllm_model_type="qwen-vl-max"
-    default_api_key=os.getenv("QWEN_API_KEY")
-    default_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
-    default_temperature=0.4
-    default_max_tokens=4096
-
-    # Check if role name is valid
-    if role_name not in ["USER", "ASSISTANT", "WEB", "PLANNING", "IMAGE"]:
-        raise ValueError(f"Invalid role name: {role_name}")
-    
-    # Check if default role name is valid
-    if default_role_name not in ["LLM", "VLLM"]:
-        raise ValueError(f"Invalid default role name: {default_role_name}")
-
-    # Get model type from environment variable
-    model_type=os.getenv(f"{role_name}_ROLE_API_MODEL_TYPE", os.getenv(f"{default_role_name}_ROLE_API_MODEL_TYPE", (default_llm_model_type if default_role_name == "LLM" else default_vllm_model_type)))
-
-    # Get API key from environment variable
-    api_key=os.getenv(f"{role_name}_ROLE_API_KEY", os.getenv(f"{default_role_name}_ROLE_API_KEY", default_api_key))
-
-    # Get URL from environment variable
-    url=os.getenv(f"{role_name}_ROLE_API_BASE_URL", os.getenv(f"{default_role_name}_ROLE_API_BASE_URL", default_url))
-
-    # Get temperature from environment variable
-    temperature_str = os.getenv(f"{role_name}_ROLE_API_MODEL_TEMPERATURE", os.getenv(f"{default_role_name}_ROLE_API_MODEL_TEMPERATURE"))
-    try:
-        temperature = float(temperature_str) if temperature_str else default_temperature
-    except ValueError:
-        raise ValueError(f"Invalid temperature: {temperature_str}")
-    
-    # Get max_tokens from environment variable
-    max_tokens_str = os.getenv(f"{role_name}_ROLE_API_MODEL_MAX_TOKENS", os.getenv(f"{default_role_name}_ROLE_API_MODEL_MAX_TOKENS"))
-    try:
-        max_tokens = int(max_tokens_str) if max_tokens_str else default_max_tokens
-    except ValueError:
-        raise ValueError(f"Invalid max_tokens: {max_tokens_str}")
-
-    # Check if max_tokens is valid
-    if max_tokens < 1:
-        model_config_dict = {"temperature": temperature}
-    else:
-        model_config_dict = {"temperature": temperature, "max_tokens": max_tokens}
-
-    # Create model for different components
-    return ModelFactory.create(
-            model_platform=ModelPlatformType.OPENAI_COMPATIBLE_MODEL,
-            model_type=model_type,
-            api_key=api_key,
-            url=url,
-            model_config_dict=model_config_dict,
-        )
-
+# No need to set environment variables. Modify the corresponding default values to yours.
+default_llm_model_type="qwen-max"
+default_vlm_model_type="qwen-vl-max"
+default_api_key=os.getenv("QWEN_API_KEY", "Your_Key")
+default_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+default_temperature=0.4
+default_max_tokens=12800
 def construct_society(question: str) -> RolePlaying:
     r"""Construct a society of agents based on the given question.
 
@@ -124,18 +57,66 @@ def construct_society(question: str) -> RolePlaying:
 
     # Create models for different components
     models = {
-        "user": create_role_playing_model("USER"),
-        "assistant": create_role_playing_model("ASSISTANT"),
-        "web": create_role_playing_model("WEB", "VLLM"),
-        "planning": create_role_playing_model("PLANNING"),
-        "image": create_role_playing_model("IMAGE", "VLLM"),
+        "user": ModelFactory.create(
+            model_platform=ModelPlatformType.OPENAI_COMPATIBLE_MODEL,
+
+            model_type=os.getenv("USER_ROLE_API_MODEL_TYPE", os.getenv("LLM_ROLE_API_MODEL_TYPE", default_llm_model_type)),
+            api_key=os.getenv("USER_ROLE_API_KEY", os.getenv("LLM_ROLE_API_KEY", default_api_key)),
+            url=os.getenv("USER_ROLE_API_BASE_URL", os.getenv("LLM_ROLE_API_BASE_URL", default_url)),
+            model_config_dict={
+                "temperature": float(os.getenv("USER_ROLE_API_MODEL_TEMPERATURE", os.getenv("LLM_ROLE_API_MODEL_TEMPERATURE", f"{default_temperature}"))), 
+                "max_tokens": int(os.getenv("USER_ROLE_API_MODEL_MAX_TOKENS", os.getenv("LLM_ROLE_API_MODEL_MAX_TOKENS", f"{default_max_tokens}")))
+            },
+        ),
+        "assistant": ModelFactory.create(
+            model_platform=ModelPlatformType.OPENAI_COMPATIBLE_MODEL,
+            model_type=os.getenv("ASSISTANT_ROLE_API_MODEL_TYPE", os.getenv("LLM_ROLE_API_MODEL_TYPE", default_llm_model_type)),
+            api_key=os.getenv("ASSISTANT_ROLE_API_KEY", os.getenv("LLM_ROLE_API_KEY", default_api_key)),
+            url=os.getenv("ASSISTANT_ROLE_API_BASE_URL", os.getenv("LLM_ROLE_API_BASE_URL", default_url)),
+            model_config_dict={
+                "temperature": float(os.getenv("ASSISTANT_ROLE_API_MODEL_TEMPERATURE", os.getenv("LLM_ROLE_API_MODEL_TEMPERATURE", f"{default_temperature}"))), 
+                "max_tokens": int(os.getenv("ASSISTANT_ROLE_API_MODEL_MAX_TOKENS", os.getenv("LLM_ROLE_API_MODEL_MAX_TOKENS", f"{default_max_tokens}")))
+            },
+
+        ),
+        "browsing": ModelFactory.create(
+            model_platform=ModelPlatformType.OPENAI_COMPATIBLE_MODEL,
+
+            model_type=os.getenv("BROWSING_ROLE_API_BASE_URL", os.getenv("VLLM_ROLE_API_MODEL_TYPE", default_vlm_model_type)),
+            api_key=os.getenv("BROWSING_ROLE_API_KEY", os.getenv("VLLM_ROLE_API_KEY", default_api_key)),
+            url=os.getenv("USER_ROLE_API_BASE_URL", os.getenv("VLLM_ROLE_API_BASE_URL", default_url)),
+            model_config_dict={
+                "temperature": float(os.getenv("BROWSING_ROLE_API_MODEL_TEMPERATURE", os.getenv("VLLM_ROLE_API_MODEL_TEMPERATURE", f"{default_temperature}"))), 
+                "max_tokens": int(os.getenv("BROWSING_ROLE_API_MODEL_MAX_TOKENS", os.getenv("VLLM_ROLE_API_MODEL_MAX_TOKENS", f"{default_max_tokens}")))
+            },
+        ),
+        "planning": ModelFactory.create(
+            model_platform=ModelPlatformType.OPENAI_COMPATIBLE_MODEL,
+            model_type=os.getenv("PLANNING_ROLE_API_MODEL_TYPE", os.getenv("LLM_ROLE_API_MODEL_TYPE", default_llm_model_type)),
+            api_key=os.getenv("PLANNING_ROLE_API_KEY", os.getenv("LLM_ROLE_API_KEY", default_api_key)),
+            url=os.getenv("PLANNING_ROLE_API_BASE_URL", os.getenv("LLM_ROLE_API_BASE_URL", default_url)),
+            model_config_dict={
+                "temperature": float(os.getenv("PLANNING_ROLE_API_MODEL_TEMPERATURE", os.getenv("LLM_ROLE_API_MODEL_TEMPERATURE", f"{default_temperature}"))), 
+                "max_tokens": int(os.getenv("PLANNING_ROLE_API_MODEL_MAX_TOKENS", os.getenv("LLM_ROLE_API_MODEL_MAX_TOKENS", f"{default_max_tokens}")))
+            },
+        ),
+        "image": ModelFactory.create(
+            model_platform=ModelPlatformType.OPENAI_COMPATIBLE_MODEL,
+            model_type=os.getenv("IMAGE_ROLE_API_MODEL_TYPE", os.getenv("VLLM_ROLE_API_MODEL_TYPE", default_vlm_model_type)),
+            api_key=os.getenv("IMAGE_ROLE_API_KEY", os.getenv("VLLM_ROLE_API_KEY", default_api_key)),
+            url=os.getenv("IMAGE_ROLE_API_BASE_URL", os.getenv("VLLM_ROLE_API_BASE_URL", default_url)),
+            model_config_dict={
+                "temperature": float(os.getenv("IMAGE_ROLE_API_MODEL_TEMPERATURE", os.getenv("VLLM_ROLE_API_MODEL_TEMPERATURE", f"{default_temperature}"))), 
+                "max_tokens": int(os.getenv("IMAGE_ROLE_API_MODEL_MAX_TOKENS", os.getenv("VLLM_ROLE_API_MODEL_MAX_TOKENS", f"{default_max_tokens}")))
+            },
+        ),
     }
 
     # Configure toolkits
     tools = [
         *BrowserToolkit(
             headless=False,  # Set to True for headless mode (e.g., on remote servers)
-            web_agent_model=models["web"],
+            web_agent_model=models["browsing"],
             planning_agent_model=models["planning"],
         ).get_tools(),
         *CodeExecutionToolkit(sandbox="subprocess", verbose=True).get_tools(),
@@ -169,6 +150,7 @@ def construct_society(question: str) -> RolePlaying:
     return society
 
 
+
 def main(question: str = "Navigate to Amazon.com and identify one product that is attractive to coders. Please provide me with the product name and price. No need to verify your answer."):
     r"""Main function to run the OWL system with an example question.
     Args:
@@ -178,8 +160,10 @@ def main(question: str = "Navigate to Amazon.com and identify one product that i
     Returns:
         None
     """
+
     # Construct and run the society
-    society = construct_society(question)
+    society = construct_society(task)
+
     answer, chat_history, token_count = run_society(society)
 
     # Output the result
