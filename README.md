@@ -99,6 +99,19 @@ Our vision is to revolutionize how AI agents collaborate to solve real-world tas
   </p>
 </div>
 
+<div align="center" style="background-color: #e8f5e9; padding: 15px; border-radius: 10px; border: 2px solid #4caf50; margin: 20px 0;">
+  <h3 style="color: #2e7d32; margin: 0; font-size: 1.3em;">
+    🧩 <b>NEW: COMMUNITY AGENT CHALLENGES!</b> 🧩
+  </h3>
+  <p style="font-size: 1.1em; margin: 10px 0;">
+    Showcase your creativity by designing unique challenges for AI agents! <br>
+    Join our community and see your innovative ideas tackled by cutting-edge AI.
+  </p>
+  <p>
+    <a href="https://github.com/camel-ai/owl/blob/main/community_challenges.md" style="background-color: #2e7d32; color: white; padding: 8px 15px; text-decoration: none; border-radius: 5px; font-weight: bold;">View & Submit Challenges</a>
+  </p>
+</div>
+
 <div style="background-color: #e3f2fd; padding: 12px; border-radius: 8px; border-left: 4px solid #1e88e5; margin: 10px 0;">
   <h4 style="color: #1e88e5; margin: 0 0 8px 0;">
     🎉 Latest Major Update - March 15, 2025
@@ -113,6 +126,7 @@ Our vision is to revolutionize how AI agents collaborate to solve real-world tas
   </p>
 </div>
 
+- **[2025.03.26]**: Supported Gemini 2.5 Pro, added example run code
 - **[2025.03.21]**: Integrated OpenRouter model platform, fix bug with Gemini tool calling
 - **[2025.03.20]**: Accept header in MCP Toolkit, support automatic playwright installation
 - **[2025.03.16]**: Support Bing search, Baidu search
@@ -369,6 +383,9 @@ python examples/run_deepseek_zh.py
 
 # Run with other OpenAI-compatible models
 python examples/run_openai_compatible_model.py
+
+# Run with Gemini model
+python examples/run_gemini.py
 
 # Run with Azure OpenAI
 python examples/run_azure_openai.py

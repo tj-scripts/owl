@@ -245,6 +245,7 @@ MODULE_DESCRIPTIONS = {
     "run_multi_platform_model": "Use different models and APIs to handle tasks, suitable for managing token anxieties.",
     "run": "Default mode: Using OpenAI model's default agent collaboration mode, suitable for most tasks.",
     "run_mini": "Using OpenAI model with minimal configuration to process tasks",
+    "run_gemini": "Using Gemini model to process tasks",
     "run_deepseek_zh": "Using deepseek model to process Chinese tasks",
     "run_openai_compatible_model": "Using openai compatible model to process tasks",
     "run_ollama": "Using local ollama model to process tasks",
